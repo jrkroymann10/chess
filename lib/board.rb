@@ -2,8 +2,10 @@ require 'colorize'
 require_relative 'pieces.rb'
 require 'pry'
 
+# /lib/board
+
 class BoardSquare
-  attr_accessor :background, :base
+  attr_accessor :background, :base, :guest
   def initialize(back_color, guest = ' ', row = nil)
     @background = back_color
     @guest = guest
@@ -24,7 +26,17 @@ class BoardSquare
 end
 
 class Board
-  attr_accessor :display
+  @@horizontal_key = {
+    'a' => 0,
+    'b' => 1,
+    'c' => 2,
+    'd' => 3,
+    'e' => 4,
+    'f' => 5,
+    'g' => 6,
+    'h' => 7
+  }
+  attr_accessor :display, :horizontal_key
   def initialize
     @display = build_board.reverse
   end
@@ -48,7 +60,37 @@ class Board
     puts "\n" + "\n"
   end
 
+  def move_piece(move) # example move = (11:13), move piece at (1, 1) to square at (1, 3)
+    mv_start = move[0..1].split('')
+    mv_end = move[3..4].split('')
+    start_row = 8 - mv_start[1].to_i
+    start_col = @@horizontal_key[mv_start[0]]
+    end_row = 8 - mv_end[1].to_i
+    end_col = @@horizontal_key[mv_end[0]]
+
+
+    temp = @display[start_row][start_col].guest
+    @display[end_row][end_col].guest = temp
+    @display[start_row][start_col].guest = ' '
+  end
+
+  def show_moves(moves)
+    moves.each do |move|
+      move.each do |square|
+        for i in 0..7
+          for j in 0..7
+            if square == [i, j]
+              @display[i][j].background = 'black'
+            end
+          end
+        end
+      end
+    end
+  end
+
   private
+
+  # classes for building the initial board
 
   def build_first_row(board)
     (0..7).each do |col|
@@ -140,13 +182,17 @@ class Board
       end
     end
 
-    board[0][0] = BoardSquare.new('black', '    1')
-    (1..8).each do |col|
-      board[0][col] = BoardSquare.new('black', col + 1)
+    board[0][0] = BoardSquare.new('', '    a')
+    letters = ['b','c','d','e','f','g','h']
+    letters.each_with_index do |letter, index|
+      board[0][index + 1] = BoardSquare.new('', letter)
     end
     board
   end
 end
 
 x = Board.new
+x.display_board
+x.move_piece('c1:e4')
+x.show_moves([[[4, 0], [4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [4, 7]], [[0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4]], [[0, 0], [1, 1], [2, 2], [3, 3]], [[0, 8], [1, 7], [2, 6], [3, 5]], [[8, 8], [7, 7], [6, 6], [5, 5]], [[8, 0], [7, 1], [6, 2], [5, 3]]])
 x.display_board
