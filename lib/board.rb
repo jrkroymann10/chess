@@ -63,31 +63,56 @@ class Board
   def move_piece(move) # example move = (11:13), move piece at (1, 1) to square at (1, 3)
     mv_start = move[0..1].split('')
     mv_end = move[3..4].split('')
-    
+
     start_row = 8 - mv_start[1].to_i
     start_col = @@horizontal_key[mv_start[0]]
     start_location = [start_row, start_col]
     end_row = 8 - mv_end[1].to_i
     end_col = @@horizontal_key[mv_end[0]]
-
+    end_location = [end_row, end_col]
 
     temp = @display[start_row][start_col].guest
 
-    moves = filter_pawn(start_location, temp, temp.poss_moves(start_location))
-    # binding.pry
+    p temp
+
+    moves = filter(start_location, temp, temp.poss_moves(start_location))
+
+    p moves
+
     show_moves(moves)
-    
-    # @display[end_row][end_col].guest = temp
-    # @display[start_row][start_col].guest = ' '
+
+    # binding.pry
+
+    if moves.include?(end_location)
+      @display[end_row][end_col].guest = temp
+      @display[start_row][start_col].guest = ' '
+      display_board
+    else
+      false
+    end
   end
 
   def show_moves(moves)
+    colors = []
     moves.each do |move|
-      for i in 0..7
-        for j in 0..7
-          if move == [i, j]
-              @display[i][j].background = 'black'
+      (0..7).each do |row|
+        (0..7).each do |col|
+          if move == [row, col]
+            colors.push(@display[row][col].background)
+            @display[row][col].background = 'black'
           end
+        end
+      end
+    end
+    display_board
+    reset_background(colors, moves)
+  end
+
+  def reset_background(colors, moves)
+    moves.each do |move|
+      (0..7).each do |row|
+        (0..7).each do |col|
+          @display[row][col].background = colors.shift if move == [row, col]
         end
       end
     end
@@ -198,9 +223,29 @@ class Board
   public
 
   # classes for filtering possible moves
-    
-  def filter()
 
+  def filter(location, guest, poss_moves)
+    case guest.id
+
+    when 'pawn'
+      filter_pawn(location, guest, poss_moves)
+
+    when 'rook'
+      filter_rook(location, guest, poss_moves)
+
+    when 'knight'
+      filter_knight(location, guest, poss_moves)
+
+    when 'bishop'
+      filter_bishop(location, guest, poss_moves)
+
+    when 'queen'
+      filter_queen(location, guest, poss_moves)
+
+    when 'king'
+      filter_king(location, guest, poss_moves)
+
+    end
   end
 
   def filter_pawn(location, guest, poss_moves)
@@ -208,12 +253,9 @@ class Board
 
     # black pawns
     if guest.display == "\u2659".encode('utf-8').colorize(:black)
-      if @display[location[0] + 1][location[1] - 1].guest != ' ' && @display[location[0] + 1][location[1] + 1].guest != ' '
-        moves << poss_moves[-1] 
-        moves << poss_moves[-2]
-      elsif @display[location[0] + 1][location[1] + 1].guest != ' '
+      if @display[location[0] + 1][location[1] + 1].guest != ' ' && @display[location[0] + 1][location[1] + 1].guest.color != 'black'
         moves << poss_moves[-1]
-      elsif @display[location[0] + 1][location[1] - 1].guest != ' '
+      elsif @display[location[0] + 1][location[1] - 1].guest != ' ' && @display[location[0] + 1][location[1] - 1].guest.colorn != 'black'
         moves << poss_moves[-2]
       end
 
@@ -228,12 +270,9 @@ class Board
 
     # white pawns
     if guest.display == "\u265f".encode('utf-8')
-      if @display[location[0] - 1][location[1] - 1].guest != ' ' && @display[location[0] - 1][location[1] + 1].guest != ' '
+      if @display[location[0] - 1][location[1] + 1].guest != ' ' && @display[location[0] - 1][location[1] + 1].guest.color != 'white'
         moves << poss_moves[-1]
-        moves << poss_moves[-2]
-      elsif @display[location[0] - 1][location[1] + 1].guest != ' '
-        moves << poss_moves[-1]
-      elsif @display[location[0] - 1][location[1] - 1].guest != ' '
+      elsif @display[location[0] - 1][location[1] - 1].guest != ' ' && @display[location[0] - 1][location[1] - 1].guest.color != 'white'
         moves << poss_moves[-2]
       end
 
@@ -241,17 +280,43 @@ class Board
         moves << poss_moves[1]
       end
 
-      if @display[location[0] - 1][location[1]].guest == ' '
-        moves << poss_moves[0]
+      moves << poss_moves[0] if @display[location[0] - 1][location[1]].guest == ' '
+    end
+    moves
+  end
+
+  def filter_rook(location, guest, poss_moves)
+
+    hor_temp = poss_moves[0].index(location)
+    vert_temp = poss_moves[1].index(location)
+
+    left_horizontal = poss_moves[0][0...hor_temp].reverse
+    right_horizontal = poss_moves[0][(hor_temp + 1)...poss_moves[0].length]
+
+    top_vertical = poss_moves[1][0...vert_temp].reverse
+    bot_vertical = poss_moves[1][(vert_temp + 1)...poss_moves[1].length]
+
+    filter_from_start([left_horizontal, right_horizontal, top_vertical, bot_vertical], guest.color)
+  end
+
+  def filter_from_start(quads, col)
+    moves = []
+
+    quads.each do |quad|
+      for i in 0...quad.length
+        if @display[quad[i][0]][quad[i][1]].guest == ' '
+          moves.push(quad[i])
+        elsif @display[quad[i][0]][quad[i][1]].guest != ' ' && @display[quad[i][0]][quad[i][1]].guest.color != col
+          moves.push(quad[i])
+          break
+        elsif @display[quad[i][0]][quad[i][1]].guest != ' ' && @display[quad[i][0]][quad[i][1]].guest.color == col
+          break
+        end
       end
     end
     moves
   end
 
-  def filter_rook
-
-  end
-    
   def filter_queen(poss_moves)
 
   end
@@ -264,5 +329,9 @@ end
 x = Board.new
 x.display_board
 # p x.display[1]
-x.move_piece('b2:b3')
-x.display_board
+x.move_piece('a2:a4')
+x.move_piece('a1:a3')
+x.move_piece('g2:g3')
+x.move_piece('a3:f3')
+x.move_piece('f3:f5')
+x.move_piece('f5:f7')

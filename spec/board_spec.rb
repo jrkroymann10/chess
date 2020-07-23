@@ -10,23 +10,26 @@ describe Board do
     end
   end
 
-  it 'allows for pawns to attack pieces in a diagonal manner' do
+  it 'allows for pawns to attack pieces of the opposite color in a diagonal manner' do
     board = Board.new
     board.move_piece('c2:c4')
     board.move_piece('d7:d5')
+    board.move_piece('b2:b4')
+    board.move_piece('b4:b5')
+    expect(board.move_piece('c4:b5')).to eql(false)
     board.move_piece('c4:d5')
-    expect(board.display[3][3]).to eql("\u265f".encode('utf-8'))
+    expect(board.display[3][3].guest.display).to eql("\u265f".encode('utf-8'))
   end
 
   it 'does not allow pawns to move diagonally except for attacking' do
     board = Board.new
-    expect(board.move_piece('b7:a6')).to eql('impossible move, try again')
+    expect(board.move_piece('b7:a6')).to eql(false)
   end
 
   it 'does not let a player make illegal moves' do
     board = Board.new
-    expect(board.move_piece('a1:a4')).to eql('impossible move, try again')
-    expect(board.move_piece('d1:f3')).to eql('impossible move, try again')
+    expect(board.move_piece('a1:a4')).to eql(false)
+    expect(board.move_piece('d1:f3')).to eql(false)
   end
 
   it 'does not let a player make a move that puts them in check' do

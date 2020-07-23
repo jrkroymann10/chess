@@ -1,9 +1,10 @@
 require 'colorize'
 
 class Pawn
-  attr_accessor :display, :id
+  attr_accessor :display, :id, :color
   def initialize(color, id = 'pawn')
     @id = id
+    @color = color
     if color == 'black'
       @display = "\u2659".encode('utf-8').colorize(:black)
     elsif color == 'white'
@@ -13,18 +14,18 @@ class Pawn
 
   def poss_moves(location)
     moves = []
-    if location[0] == 1 && @display == "\u2659".encode('utf-8').colorize(:black)
+    if location[0] == 1 && @color == 'black'
       moves = [[location[0] + 1, location[1]], [location[0] + 2, location[1]],
                [location[0] + 1, location[1] - 1], [location[0] + 1, location[1] + 1]]
-    elsif location[0] == 6 && @display == @display = "\u265f".encode('utf-8')
+    elsif location[0] == 6 && @color == 'white'
       moves = [[location[0] - 1, location[1]], [location[0] - 2, location[1]],
                [location[0] - 1, location[1] - 1], [location[0] - 1, location[1] + 1]]
-    elsif @display == "\u2659".encode('utf-8').colorize(:black)
-      moves = [location[0] + 1, location[1], [location[0] + 1, location[1] - 1], [location[0] + 1, location[1] + 1]]
-    elsif @display == "\u265f".encode('utf-8')
-      moves = [location[0] - 1, location[1], [location[0] - 1, location[1] - 1], [location[0] - 1, location[1] + 1]]
+    elsif @color == 'black'
+      moves = [[location[0] + 1, location[1]], [location[0] + 1, location[1] - 1], [location[0] + 1, location[1] + 1]]
+    elsif @color == 'white'
+      moves = [[location[0] - 1, location[1]], [location[0] - 1, location[1] - 1], [location[0] - 1, location[1] + 1]]
     end
-    
+
     moves.filter { |move| move[0] >= 0 && move[0] <= 7 && move[1] >= 0 && move[1] <= 7 }
   end
 
@@ -34,8 +35,9 @@ class Pawn
 end
 
 class Rook
-  attr_accessor :display, :id
+  attr_accessor :display, :id, :color
   def initialize(color, id = 'rook')
+    @color = color
     @id = id
     if color == 'black'
       @display = "\u2656".encode('utf-8').colorize(:black)
@@ -59,8 +61,9 @@ class Rook
 end
 
 class Knight
-  attr_accessor :display, :id
+  attr_accessor :display, :id, :color
   def initialize(color, id = 'knight')
+    @color = color
     @id = id
     if color == 'black'
       @display = "\u2658".encode('utf-8').colorize(:black)
@@ -84,9 +87,10 @@ class Knight
 end
 
 class Bishop
-  attr_accessor :display, :id
+  attr_accessor :display, :id, :color
   def initialize(color, id = 'bishop')
     @id = id
+    @color = color
     if color == 'black'
       @display = "\u2657".encode('utf-8').colorize(:black)
     elsif color == 'white'
@@ -113,9 +117,10 @@ class Bishop
 end
 
 class Queen
-  attr_accessor :display, :id
+  attr_accessor :display, :id, :color
   def initialize(color, id = 'queen')
     @id = id
+    @color = color
     if color == 'black'
       @display = "\u2655".encode('utf-8').colorize(:black)
     elsif color == 'white'
@@ -146,9 +151,10 @@ class Queen
 end
 
 class King
-  attr_accessor :display, :id
+  attr_accessor :display, :id, :color
   def initialize(color, id = 'king')
     @id = id
+    @color = color
     if color == 'black'
       @display = "\u2654".encode('utf-8').colorize(:black)
     elsif color == 'white'
@@ -168,3 +174,6 @@ class King
     print @display
   end
 end
+
+# x = Rook.new('black')
+# p x.poss_moves([4, 4])
