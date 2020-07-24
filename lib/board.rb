@@ -61,26 +61,14 @@ class Board
   end
 
   def move_piece(move) # example move = (11:13), move piece at (1, 1) to square at (1, 3)
-    mv_start = move[0..1].split('')
-    mv_end = move[3..4].split('')
+    squares = find_start_and_end(move) # [start, end]
 
-    start_row = 8 - mv_start[1].to_i
-    start_col = @@horizontal_key[mv_start[0]]
-    start_location = [start_row, start_col]
-    end_row = 8 - mv_end[1].to_i
-    end_col = @@horizontal_key[mv_end[0]]
-    end_location = [end_row, end_col]
+    piece = @display[squares[0][0]][squares[0][1]].guest
 
-    temp = @display[start_row][start_col].guest
+    moves = filter(squares[0], piece, piece.poss_moves(squares[0]))
 
-    moves = filter(start_location, temp, temp.poss_moves(start_location))
-
-    show_moves(moves)
-
-    if moves.include?(end_location)
-      @display[end_row][end_col].guest = temp
-      @display[start_row][start_col].guest = ' '
-      display_board
+    if moves.include?(squares[1])
+      make_move(squares[0], squares[1], piece)
     else
       false
     end
@@ -93,7 +81,7 @@ class Board
         (0..7).each do |col|
           if move == [row, col]
             colors.push(@display[row][col].background)
-            @display[row][col].background = 'light_black'
+            @display[row][col].background = 'light_white'
           end
         end
       end
@@ -101,6 +89,33 @@ class Board
     display_board
     reset_background(colors, moves)
   end
+
+  private
+
+  # methods for moving a piece on the board
+
+  def find_start_and_end(move)
+    mv_start = move[0..1].split('')
+    mv_end = move[3..4].split('')
+
+    start_row = 8 - mv_start[1].to_i
+    start_col = @@horizontal_key[mv_start[0]]
+    start_location = [start_row, start_col]
+
+    end_row = 8 - mv_end[1].to_i
+    end_col = @@horizontal_key[mv_end[0]]
+    end_location = [end_row, end_col]
+
+    [start_location, end_location]
+  end
+
+  def make_move(start_location, end_location, piece)
+    @display[end_location[0]][end_location[1]].guest = piece
+    @display[start_location[0]][start_location[1]].guest = ' '
+    display_board
+  end
+
+  # resets background colors after showing possible moves in different color
 
   def reset_background(colors, moves)
     moves.each do |move|
@@ -112,9 +127,7 @@ class Board
     end
   end
 
-  private
-
-  # classes for building the initial board
+  # methods for building the initial board
 
   def build_first_row(board)
     (0..7).each do |col|
@@ -214,9 +227,7 @@ class Board
     board
   end
 
-  public
-
-  # classes for filtering possible moves
+  # methods for filtering possible moves
 
   def filter(location, guest, poss_moves)
     case guest.id
@@ -251,7 +262,7 @@ class Board
         moves << poss_moves[-1]
       end
 
-      if @display[location[0] + 1][location[1] - 1].guest != ' ' && @display[location[0] + 1][location[1] - 1].guest.colorn != 'black'
+      if location[1] > 0 && @display[location[0] + 1][location[1] - 1].guest != ' ' && @display[location[0] + 1][location[1] - 1].guest.colorn != 'black'
         moves << poss_moves[-2]
       end
 
@@ -266,7 +277,7 @@ class Board
 
     # white pawns
     if guest.display == "\u265f".encode('utf-8')
-      if @display[location[0] - 1][location[1] + 1].guest != ' ' && @display[location[0] - 1][location[1] + 1].guest.color != 'white'
+      if location[1] < 7 && @display[location[0] - 1][location[1] + 1].guest != ' ' && @display[location[0] - 1][location[1] + 1].guest.color != 'white'
         moves << poss_moves[-1]
       end
 
@@ -298,7 +309,9 @@ class Board
   end
 
   def filter_bishop(_location, guest, poss_moves)
-    
+    quads = [poss_moves[0].reverse, poss_moves[1].reverse, poss_moves[2].reverse, poss_moves[3].reverse]
+
+    filter_from_start(quads, guest.color)
   end
 
   def filter_from_start(quads, col)
@@ -316,6 +329,7 @@ class Board
         end
       end
     end
+
     moves
   end
 
@@ -327,29 +341,36 @@ class Board
     end
     moves
   end
-  
-  def filter_queen(poss_moves)
 
+  def filter_queen(location, guest, poss_moves)
+    filter_rook(location, guest, poss_moves[0..1]) + filter_bishop(location, guest, poss_moves[2..5])
   end
 
-  def filter_king(poss_moves)
+  def filter_king(_location, guest, poss_moves)
+    moves = []
 
+    poss_moves.each do |move|
+      moves.push(move) if @display[move[0]][move[1]].guest == ' ' || @display[move[0]][move[1]].guest.color != guest.color
+    end
+    moves
   end
 end
 
 x = Board.new
 x.display_board
 
-x.move_piece('b1:c3')
-x.move_piece('c3:d5')
-x.move_piece('d5:e7')
-
-# x.move_piece('a2:a4')
-# x.move_piece('h7:h5')
-# x.move_piece('a1:a3')
-# x.move_piece('h8:h6')
-# x.move_piece('g2:g3')
-# x.move_piece('h6:f6')
-# x.move_piece('a3:f3')
-# x.move_piece('a7:a5')
-# x.move_piece('f3:f5')
+x.move_piece('b1:b3')
+x.move_piece('d7:d5')
+x.move_piece('d2:d4')
+x.move_piece('e8:a4')
+x.move_piece('c1:g5')
+x.move_piece('b8:c6')
+x.move_piece('h2:h4')
+x.move_piece('a8:b8')
+x.move_piece('b1:d2')
+x.move_piece('c6:d4')
+x.move_piece('g5:e7')
+x.move_piece('d8:e7')
+x.move_piece('d4:c2')
+x.move_piece('d1:c2')
+x.move_piece('a4:c2')

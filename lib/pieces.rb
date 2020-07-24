@@ -99,16 +99,19 @@ class Bishop
   end
 
   def poss_moves(location)
-    moves = [[], [], [], []] # moves[0] = upper-left moves, moves[1] = upper-right moves, moves[2] = lower-right moves, moves[3] = lower-left moves
+    moves = [[], [], [], []] # moves[0] = lower-left moves, moves[1] = upper-left moves, moves[2] = upper-right moves, moves[3] = lower-right moves
 
     (0...location[1]).each do |col|
-      moves[0] << [col, location[1] - (location[1] - col)]
-      moves[1] << [col, ((location[1] * 2) - col)]
-      moves[2] << [((location[1] * 2) - col), ((location[1] * 2) - col)]
-      moves[3] << [((location[1] * 2) - col), location[1] - (location[1] - col)]
+      moves[0] << [location[0] + location[1] - col, col] if location[0] + location[1] - col <= 7
+      moves[1] << [location[0] - location[1] + col, col] if location[0] - location[1] + col >= 0
     end
 
-    moves
+    ((location[1] + 1)..7).reverse_each do |col|
+      moves[2] << [location[0] - col + location[1], col] if location[0] - col + location[1] >= 0
+      moves[3] << [location[0] + col - location[1], col] if location[0] + col - location[1] <= 7
+    end
+
+    moves 
   end
 
   def to_str
@@ -137,10 +140,14 @@ class Queen
     end
 
     (0...location[1]).each do |col|
-      moves[2] << [col, location[1] - (location[1] - col)]
-      moves[3] << [col, ((location[1] * 2) - col)]
-      moves[4] << [((location[1] * 2) - col), ((location[1] * 2) - col)]
-      moves[5] << [((location[1] * 2) - col), location[1] - (location[1] - col)]
+      moves[2] << [location[0] + location[1] - col, col] if location[0] + location[1] - col <= 7
+      moves[3] << [location[0] - location[1] + col, col] if location[0] - location[1] + col >= 0
+    end
+
+
+    ((location[1] + 1)..7).reverse_each do |col|
+      moves[4] << [location[0] - col + location[1], col] if location[0] - col + location[1] >= 0
+      moves[5] << [location[0] + col - location[1], col] if location[0] + col - location[1] <= 7
     end
     moves
   end
@@ -164,8 +171,8 @@ class King
 
   def poss_moves(location)
     moves = [[location[0], location[1] + 1], [location[0], location[1] + -1], [location[0] + 1, location[1]],
-             [location[0] - 1, location[1] + 1], [location[0] + 1, location[1] + 1], [location[0] - 1, location[1] + 1],
-             [location[0] + 1, location[1] - 1], [location[0] - 1, location[1] - 1]]
+             [location[0] + 1, location[1] - 1], [location[0] + 1, location[1] + 1], [location[0] - 1, location[1] + 1],
+             [location[0] - 1, location[1] - 1], [location[0] - 1, location[1]]]
 
     moves.filter { |move| move[0] >= 0 && move[0] <= 7 && move[1] >= 0 && move[1] <= 7 }
   end
@@ -174,6 +181,3 @@ class King
     print @display
   end
 end
-
-# x = Rook.new('black')
-# p x.poss_moves([4, 4])
