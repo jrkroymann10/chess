@@ -73,15 +73,9 @@ class Board
 
     temp = @display[start_row][start_col].guest
 
-    p temp
-
     moves = filter(start_location, temp, temp.poss_moves(start_location))
 
-    p moves
-
     show_moves(moves)
-
-    # binding.pry
 
     if moves.include?(end_location)
       @display[end_row][end_col].guest = temp
@@ -99,7 +93,7 @@ class Board
         (0..7).each do |col|
           if move == [row, col]
             colors.push(@display[row][col].background)
-            @display[row][col].background = 'black'
+            @display[row][col].background = 'light_black'
           end
         end
       end
@@ -253,9 +247,11 @@ class Board
 
     # black pawns
     if guest.display == "\u2659".encode('utf-8').colorize(:black)
-      if @display[location[0] + 1][location[1] + 1].guest != ' ' && @display[location[0] + 1][location[1] + 1].guest.color != 'black'
+      if location[1] < 7 && @display[location[0] + 1][location[1] + 1].guest != ' ' && @display[location[0] + 1][location[1] + 1].guest.color != 'black'
         moves << poss_moves[-1]
-      elsif @display[location[0] + 1][location[1] - 1].guest != ' ' && @display[location[0] + 1][location[1] - 1].guest.colorn != 'black'
+      end
+
+      if @display[location[0] + 1][location[1] - 1].guest != ' ' && @display[location[0] + 1][location[1] - 1].guest.colorn != 'black'
         moves << poss_moves[-2]
       end
 
@@ -272,7 +268,9 @@ class Board
     if guest.display == "\u265f".encode('utf-8')
       if @display[location[0] - 1][location[1] + 1].guest != ' ' && @display[location[0] - 1][location[1] + 1].guest.color != 'white'
         moves << poss_moves[-1]
-      elsif @display[location[0] - 1][location[1] - 1].guest != ' ' && @display[location[0] - 1][location[1] - 1].guest.color != 'white'
+      end
+
+      if location[1] > 0 && @display[location[0] - 1][location[1] - 1].guest != ' ' && @display[location[0] - 1][location[1] - 1].guest.color != 'white'
         moves << poss_moves[-2]
       end
 
@@ -299,6 +297,10 @@ class Board
     filter_from_start([left_horizontal, right_horizontal, top_vertical, bot_vertical], guest.color)
   end
 
+  def filter_bishop(_location, guest, poss_moves)
+    
+  end
+
   def filter_from_start(quads, col)
     moves = []
 
@@ -317,6 +319,15 @@ class Board
     moves
   end
 
+  def filter_knight(_location, guest, poss_moves)
+    moves = []
+
+    poss_moves.each do |move|
+      moves.push(move) if @display[move[0]][move[1]].guest == ' ' || @display[move[0]][move[1]].guest.color != guest.color
+    end
+    moves
+  end
+  
   def filter_queen(poss_moves)
 
   end
@@ -328,10 +339,17 @@ end
 
 x = Board.new
 x.display_board
-# p x.display[1]
-x.move_piece('a2:a4')
-x.move_piece('a1:a3')
-x.move_piece('g2:g3')
-x.move_piece('a3:f3')
-x.move_piece('f3:f5')
-x.move_piece('f5:f7')
+
+x.move_piece('b1:c3')
+x.move_piece('c3:d5')
+x.move_piece('d5:e7')
+
+# x.move_piece('a2:a4')
+# x.move_piece('h7:h5')
+# x.move_piece('a1:a3')
+# x.move_piece('h8:h6')
+# x.move_piece('g2:g3')
+# x.move_piece('h6:f6')
+# x.move_piece('a3:f3')
+# x.move_piece('a7:a5')
+# x.move_piece('f3:f5')
