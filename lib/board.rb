@@ -68,8 +68,6 @@ class Board
 
     moves = get_legal_moves(squares[0], start_piece, start_piece.poss_moves(squares[0]))
 
-    show_moves(moves)
-
     if moves.include?(squares[1])
       make_move(squares[0], squares[1], start_piece)
     else
@@ -107,10 +105,29 @@ class Board
   end
 
   def checkmate(color)
-    result = false
+    result = true
+    king_loc = find_king(color)
 
-    
+    return false unless in_check(king_loc, color)
+
+    (0..7).each do |row|
+      (0..7).each do |col|
+        next if @display[row][col].guest == ' ' || @display[row][col].guest.color != color
+
+        start = [row, col]
+        piece = @display[row][col].guest
+
+        moves = get_legal_moves(start, piece, piece.poss_moves(start))
+
+      #  p [[row, col], moves]
+
+        result = false unless moves == []
+      end
+    end
+    result
   end
+
+  # private
 
   def find_king(color)
     location = []
@@ -301,7 +318,7 @@ class Board
     moves = []
 
     color = piece.color
-    king_loc = find_king(color)
+    find_king(color)
 
     poss_moves.each do |move|
       end_guest = @display[move[0]][move[1]].guest
@@ -309,7 +326,7 @@ class Board
       @display[move[0]][move[1]].guest = piece
       @display[start[0]][start[1]].guest = ' '
 
-      moves.push(move) unless in_check(king_loc, color)
+      moves.push(move) unless in_check(find_king(color), color)
 
       undo_move(start, move, piece, end_guest)
     end
@@ -419,13 +436,3 @@ class Board
     moves
   end
 end
-
-board = Board.new
-board.display_board
-
-board.move_piece('c2:c3')
-board.move_piece('d7:d5')
-board.move_piece('b2:b4')
-board.move_piece('e8:a4')
-
-p board.checkmate('white')
