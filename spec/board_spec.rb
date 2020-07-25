@@ -34,11 +34,20 @@ describe Board do
 
   it 'does not let a player make a move that puts them in check' do
     board = Board.new
-    board.move_piece('d7:d6')
-    board.move_piece('g1:h3')
+    board.move_piece('d7:d5')
+    board.move_piece('b2:b4')
     board.move_piece('e8:a4')
-    board.move_piece('b1:a3')
-    board.move_piece('a4:h4')
-    expect(board.move_piece('f2:f3')).to eql('invalid move, you cannot put yourself in check')
+    expect(board.move_piece('c2:c3')).to eql(false)
+  end
+
+  describe '#checkmate' do
+    it 'returns true if a player cannot make any moves to get their king out of check' do
+      board = Board.new
+      board.move_piece('c2:c3')
+      board.move_piece('d7:d5')
+      board.move_piece('b2:b4')
+      board.move_piece('e8:a4')
+      expect(board.checkmate('white')).to eql(true)
+    end
   end
 end
