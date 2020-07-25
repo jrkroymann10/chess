@@ -57,22 +57,35 @@ class Board
         @display[row][col].to_str
       end
     end
-    puts "\n" + "\n"
+    puts "\n"
   end
 
   # example move = (a2:a3), move piece at (6, 0) to square at (5, 0)
-  def move_piece(move) 
+  def move_piece(move, color) 
     squares = find_start_and_end(move) # [start, end]
 
     start_piece = @display[squares[0][0]][squares[0][1]].guest
+
+    return false if start_piece.color != color
 
     moves = get_legal_moves(squares[0], start_piece, start_piece.poss_moves(squares[0]))
 
     if moves.include?(squares[1])
       make_move(squares[0], squares[1], start_piece)
+      display_board
     else
       false
     end
+  end
+
+  def get_moves_to_show(location)
+    loc_array = location.split('')
+
+    square = [8 - loc_array[1].to_i, @@horizontal_key[loc_array[0]]]
+
+    piece = @display[square[0]][square[1]].guest
+
+    get_legal_moves(square, piece, piece.poss_moves(square))
   end
 
   def show_moves(moves)
@@ -127,7 +140,7 @@ class Board
     result
   end
 
-  # private
+  private
 
   def find_king(color)
     location = []
