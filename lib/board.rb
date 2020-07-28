@@ -72,7 +72,6 @@ class Board
 
     if moves.include?(squares[1])
       make_move(squares[0], squares[1], start_piece)
-      display_board
     else
       false
     end
@@ -104,11 +103,12 @@ class Board
     reset_background(colors, moves)
   end
 
-  def in_check(king_location, king_color)
+  def in_check(color)
+    king_location = find_king(color)
     moves = []
     (0..7).each do |row|
       (0..7).each do |col|
-        if @display[row][col].guest != ' ' && @display[row][col].guest.color != king_color
+        if @display[row][col].guest != ' ' && @display[row][col].guest.color != color
           moves += filter([row, col], @display[row][col].guest, @display[row][col].guest.poss_moves([row, col]))
         end
       end
@@ -119,9 +119,8 @@ class Board
 
   def checkmate(color)
     result = true
-    king_loc = find_king(color)
 
-    return false unless in_check(king_loc, color)
+    return false unless in_check(color)
 
     (0..7).each do |row|
       (0..7).each do |col|
@@ -131,8 +130,6 @@ class Board
         piece = @display[row][col].guest
 
         moves = get_legal_moves(start, piece, piece.poss_moves(start))
-
-      #  p [[row, col], moves]
 
         result = false unless moves == []
       end
@@ -339,7 +336,7 @@ class Board
       @display[move[0]][move[1]].guest = piece
       @display[start[0]][start[1]].guest = ' '
 
-      moves.push(move) unless in_check(find_king(color), color)
+      moves.push(move) unless in_check(color)
 
       undo_move(start, move, piece, end_guest)
     end

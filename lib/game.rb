@@ -10,9 +10,26 @@ class Game
 
   def new_game
     @board.display_board
-    turn(@player1)
 
-    turn(@player2)
+    loop do
+      turn(@player1)
+
+      if @board.checkmate(@player2.color)
+        puts "\n" + "checkmate! #{@player1.name} has won!"
+        break
+      end
+
+      puts "\n" + "#{@player2.name} is in check" if @board.in_check(@player2.color)
+
+      turn(@player2)
+
+      if @board.checkmate(@player1.color)
+        puts "\n" + "checkmate! #{@player2.name} has won!"
+        break
+      end
+
+      puts "\n" + "#{@player1.name} is in check" if @board.in_check(@player1.color)
+    end
   end
 
   def turn(player)
