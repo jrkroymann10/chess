@@ -1,6 +1,6 @@
 class Player
   attr_accessor :name, :color
-  def initialize(name, color = '')
+  def initialize(name, color)
     @name = name.downcase
     @color = color
   end
@@ -9,7 +9,7 @@ class Player
     move = ''
 
     until move.length == 2 || move.length == 5
-      print "\n" + "your move, #{@name}: "
+      print "\n" + "    your move, #{@name}: "
       move = gets.chomp
     end
     move

@@ -14,9 +14,9 @@ class BoardSquare
 
   def to_str
     if !@row.nil? && @guest != ' '
-      print " #{@row} ".colorize(:white) + " #{@guest.display} ".colorize(:background => :"#{@background}")
+      print "    #{@row} ".colorize(:white) + " #{@guest.display} ".colorize(:background => :"#{@background}")
     elsif !@row.nil? && @guest == ' '
-      print " #{@row} ".colorize(:white) + " #{@guest} ".colorize(:background => :"#{@background}")
+      print "    #{@row} ".colorize(:white) + " #{@guest} ".colorize(:background => :"#{@background}")
     elsif @guest != ' '
       print " #{@guest.display} ".colorize(:background => :"#{@background}")
     elsif @guest.length == 1
@@ -84,23 +84,9 @@ class Board
 
     piece = @display[square[0]][square[1]].guest
 
-    get_legal_moves(square, piece, piece.poss_moves(square))
-  end
+    moves = get_legal_moves(square, piece, piece.poss_moves(square))
 
-  def show_moves(moves)
-    colors = []
-    moves.each do |move|
-      (0..7).each do |row|
-        (0..7).each do |col|
-          if move == [row, col]
-            colors.push(@display[row][col].background)
-            @display[row][col].background = 'light_white'
-          end
-        end
-      end
-    end
-    display_board
-    reset_background(colors, moves)
+    show_moves(moves)
   end
 
   def in_check(color)
@@ -138,6 +124,22 @@ class Board
   end
 
   private
+
+  def show_moves(moves)
+    colors = []
+    moves.each do |move|
+      (0..7).each do |row|
+        (0..7).each do |col|
+          if move == [row, col]
+            colors.push(@display[row][col].background)
+            @display[row][col].background = 'light_white'
+          end
+        end
+      end
+    end
+    display_board
+    reset_background(colors, moves)
+  end
 
   def find_king(color)
     location = []
@@ -289,7 +291,7 @@ class Board
       end
     end
 
-    board[0][0] = BoardSquare.new('', '    a')
+    board[0][0] = BoardSquare.new('', '       a')
     letters = ['b','c','d','e','f','g','h']
     letters.each_with_index do |letter, index|
       board[0][index + 1] = BoardSquare.new('', letter)
