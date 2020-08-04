@@ -201,7 +201,6 @@ class Board
   def make_move(start_location, end_location, piece)
     @display[end_location[0]][end_location[1]].guest = piece
     @display[start_location[0]][start_location[1]].guest = ' '
-    display_board
   end
 
   def undo_move(start_location, end_location, piece, end_guest)

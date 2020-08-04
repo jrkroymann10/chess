@@ -1,6 +1,8 @@
 require_relative 'board.rb'
 require_relative 'player.rb'
 require_relative 'text_module.rb'
+require 'fileutils'
+require 'yaml'
 
 class Game
   include GameText
@@ -8,10 +10,11 @@ class Game
     @board = Board.new
     @player1 = Player.new(player1, 'white')
     @player2 = Player.new(player2, 'black')
+    @last_color = 'black'
   end
 
-  def play_or_save
-    print "\n" + GameText.save
+  def play_or_load
+    print "\n" + GameText.options
 
     response = gets.chomp.downcase
 
@@ -21,6 +24,36 @@ class Game
     end
 
     new_game if response == 'new'
+    load_game if response == 'load'
+  end
+
+  def play_chess
+    loop do
+      if @last_color == 'black'
+        turn(@player1)
+
+        if @board.checkmate(@player2.color)
+          @board.display_board
+          puts "\n" + "    checkmate! #{@player1.name} has won!"
+          break
+        end
+
+        puts "\n" + "    #{@player2.name} is in check" if @board.in_check(@player2.color)
+        @last_color = 'white'
+
+      elsif @last_color == 'white'
+        turn(@player2)
+
+        if @board.checkmate(@player1.color)
+          @board.display_board
+          puts "\n" + "    checkmate! #{@player2.name} has won!"
+          break
+        end
+  
+        puts "\n" + "    #{@player1.name} is in check" if @board.in_check(@player1.color)
+        @last_color = 'black'
+      end
+    end
   end
 
   private
@@ -43,33 +76,11 @@ class Game
 
     @player1.name = p1_name
     @player2.name = p2_name
-
-    @board.display_board
-  end
-  
-  def play_chess
-    loop do
-      turn(@player1)
-
-      if @board.checkmate(@player2.color)
-        puts "\n" + "    checkmate! #{@player1.name} has won!"
-        break
-      end
-
-      puts "\n" + "    #{@player2.name} is in check" if @board.in_check(@player2.color)
-
-      turn(@player2)
-
-      if @board.checkmate(@player1.color)
-        puts "\n" + "    checkmate! #{@player2.name} has won!"
-        break
-      end
-    end
-
-    puts "\n" + "    #{@player1.name} is in check" if @board.in_check(@player1.color)
   end
 
   def turn(player)
+    @board.display_board
+
     move = player.move
 
     if move == 'save'
@@ -92,9 +103,6 @@ class Game
   end
 
   def save_game
-    require 'fileutils'
-    require 'yaml'
-
     directory = 'saved_games'
 
     FileUtils.mkdir(directory) unless Dir.exist?(directory)
@@ -112,6 +120,19 @@ class Game
   end
 
   def load_game
+    games = Dir.entries('saved_games')
 
+    puts "\n"
+
+    games.each_with_index do |game, index|
+      puts "    |#{index}| #{game}" if game.length > 2
+    end
+
+    print "\n" + '    please input the number of the game you would like to resume: '
+    game_num = gets.chomp.to_i
+
+    FileUtils.cd('saved_games')
+    game = YAML.load(File.read(games[game_num]))
+    game.play_chess
   end
 end

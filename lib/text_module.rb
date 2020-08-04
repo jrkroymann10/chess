@@ -15,13 +15,13 @@ module GameText
     @@introduction
   end
 
-  @@save = "    welcome to chess, what would you like to do?
+  @@options = "    welcome to chess, what would you like to do?
 
                       new game          -> input 'new'
                       load a saved game -> input 'load'
                                         -> input  "
 
-  def self.save
-    @@save
+  def self.options
+    @@options
   end
 end
