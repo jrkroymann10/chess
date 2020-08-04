@@ -8,7 +8,7 @@ class Player
   def move
     move = ''
 
-    until move.length == 2 || move.length == 5
+    until move.length == 2 || move.length == 5 || move == 'save'
       print "\n" + "    your move, #{@name}: "
       move = gets.chomp
     end

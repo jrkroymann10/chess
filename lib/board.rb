@@ -102,6 +102,8 @@ class Board
 
     square = [8 - loc_array[1].to_i, @@horizontal_key[loc_array[0].downcase]]
 
+    return false if @display[square[0]][square[1]].guest == ' '
+
     piece = @display[square[0]][square[1]].guest
 
     moves = get_legal_moves(square, piece, piece.poss_moves(square))
