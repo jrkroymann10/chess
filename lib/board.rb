@@ -64,19 +64,33 @@ class Board
   def move_piece(move, color) 
     squares = find_start_and_end(move) # [start, end]
 
+    return false if @display[squares[0][0]][squares[0][1]].guest == ' '
+
     start_piece = @display[squares[0][0]][squares[0][1]].guest
 
-    return false if start_piece.color != color
+    return false if start_piece.color != color 
 
     moves = get_legal_moves(squares[0], start_piece, start_piece.poss_moves(squares[0]))
 
 
     if moves.include?(squares[1])
-      make_move(squares[0], squares[1], start_piece)
+
+      # castling
       if start_piece.id == 'king' && start_piece.color == 'white' && squares[1] == [7, 1] 
+        make_move(squares[0], squares[1], start_piece)
         make_move([7, 0], [7, 2], @display[0][0].guest)
       elsif start_piece.id == 'king' && start_piece.color == 'black' && squares[1] == []
+        make_move(squares[0], squares[1], start_piece)
         make_move([0, 0], [0, 2], @display[7][0].guest)
+
+      # pawn -> queen upgrade
+      elsif start_piece.id == 'pawn' && start_piece.color == 'white' && squares[1][0].zero?
+        make_move(squares[0], squares[1], Queen.new('white'))
+      elsif start_piece.id == 'pawn' && start_piece.color == 'black' && squares[1][0] == 7
+        make_move(squares[0], squares[1], Queen.new('black'))
+
+      else
+        make_move(squares[0], squares[1], start_piece)
       end
     else
       false
@@ -165,9 +179,6 @@ class Board
   def find_start_and_end(move)
     mv_start = move[0..1].split('')
     mv_end = move[3..4].split('')
-
-    p mv_start
-    p mv_end
 
     start_row = 8 - mv_start[1].to_i
     start_col = @@horizontal_key[mv_start[0].downcase]

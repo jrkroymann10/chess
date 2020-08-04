@@ -17,27 +17,27 @@ class Game
       turn(@player1)
 
       if @board.checkmate(@player2.color)
-        puts "\n" + "   checkmate! #{@player1.name} has won!"
+        puts "\n" + "    checkmate! #{@player1.name} has won!"
         break
       end
 
-      puts "\n" + "   #{@player2.name} is in check" if @board.in_check(@player2.color)
+      puts "\n" + "    #{@player2.name} is in check" if @board.in_check(@player2.color)
 
       turn(@player2)
 
       if @board.checkmate(@player1.color)
-        puts "\n" + "   checkmate! #{@player2.name} has won!"
+        puts "\n" + "    checkmate! #{@player2.name} has won!"
         break
       end
 
-      puts "\n" + "   #{@player1.name} is in check" if @board.in_check(@player1.color)
+      puts "\n" + "    #{@player1.name} is in check" if @board.in_check(@player1.color)
     end
   end
 
   def game_intro
     print "\n" + GameText.introduction
 
-    continue = gets.chomp
+    gets.chomp
 
     print "\n" + '    input your name, player 1: '
     p1_name = gets.chomp.downcase
