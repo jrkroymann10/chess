@@ -120,19 +120,24 @@ class Game
   end
 
   def load_game
-    games = Dir.entries('saved_games')
+    if Dir.exist?('saved_games')
+      games = Dir.entries('saved_games')
 
-    puts "\n"
+      puts "\n"
 
-    games.each_with_index do |game, index|
-      puts "    |#{index}| #{game}" if game.length > 2
+      games.each_with_index do |game, index|
+        puts "    |#{index}| #{game}" if game.length > 2
+      end
+
+      print "\n" + '    please input the number of the game you would like to resume: '
+      game_num = gets.chomp.to_i
+
+      FileUtils.cd('saved_games')
+      game = YAML.load(File.read(games[game_num]))
+      game.play_chess
+    else
+      puts "\n" + "    no saved games, let's start a new one!"
+      new_game
     end
-
-    print "\n" + '    please input the number of the game you would like to resume: '
-    game_num = gets.chomp.to_i
-
-    FileUtils.cd('saved_games')
-    game = YAML.load(File.read(games[game_num]))
-    game.play_chess
   end
 end
