@@ -28,12 +28,12 @@ class Game
   end
 
   def play_chess
+    @board.display_board
     loop do
       if @last_color == 'black'
         turn(@player1)
 
         if @board.checkmate(@player2.color)
-          @board.display_board
           puts "\n" + "    checkmate! #{@player1.name} has won!"
           break
         end
@@ -45,14 +45,13 @@ class Game
         turn(@player2)
 
         if @board.checkmate(@player1.color)
-          @board.display_board
           puts "\n" + "    checkmate! #{@player2.name} has won!"
           break
         end
   
         puts "\n" + "    #{@player1.name} is in check" if @board.in_check(@player1.color)
         @last_color = 'black'
-      end
+      end 
     end
   end
 
@@ -76,10 +75,11 @@ class Game
 
     @player1.name = p1_name
     @player2.name = p2_name
+
+    @board.display_board
   end
 
   def turn(player)
-    @board.display_board
 
     move = player.move
 
@@ -88,11 +88,11 @@ class Game
     end
 
     if move.length == 2
-      if board.get_moves_to_show(move) == false
+      if @board.get_moves_to_show(move) == false
         puts "\n" + '    illegal move warning'
       else
-      @board.get_moves_to_show(move)
-      turn(player)
+        @board.get_moves_to_show(move)
+        turn(player)
       end
     elsif move.length == 5
       if @board.move_piece(move, player.color) == false
@@ -100,6 +100,7 @@ class Game
         turn(player)
       end
     end
+    @board.display_board
   end
 
   def save_game
