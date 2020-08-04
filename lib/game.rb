@@ -59,7 +59,7 @@ class Game
       turn(player)
     elsif move.length == 5
       if @board.move_piece(move, player.color) == false
-        puts "\n" + '   illegal move warning'
+        puts "\n" + '    illegal move warning'
         turn(player)
       end
     end

@@ -70,8 +70,14 @@ class Board
 
     moves = get_legal_moves(squares[0], start_piece, start_piece.poss_moves(squares[0]))
 
+
     if moves.include?(squares[1])
       make_move(squares[0], squares[1], start_piece)
+      if start_piece.id == 'king' && start_piece.color == 'white' && squares[1] == [7, 1] 
+        make_move([7, 0], [7, 2], @display[0][0].guest)
+      elsif start_piece.id == 'king' && start_piece.color == 'black' && squares[1] == []
+        make_move([0, 0], [0, 2], @display[7][0].guest)
+      end
     else
       false
     end
@@ -80,7 +86,7 @@ class Board
   def get_moves_to_show(location)
     loc_array = location.split('')
 
-    square = [8 - loc_array[1].to_i, @@horizontal_key[loc_array[0]]]
+    square = [8 - loc_array[1].to_i, @@horizontal_key[loc_array[0].downcase]]
 
     piece = @display[square[0]][square[1]].guest
 
@@ -160,12 +166,15 @@ class Board
     mv_start = move[0..1].split('')
     mv_end = move[3..4].split('')
 
+    p mv_start
+    p mv_end
+
     start_row = 8 - mv_start[1].to_i
-    start_col = @@horizontal_key[mv_start[0]]
+    start_col = @@horizontal_key[mv_start[0].downcase]
     start_location = [start_row, start_col]
 
     end_row = 8 - mv_end[1].to_i
-    end_col = @@horizontal_key[mv_end[0]]
+    end_col = @@horizontal_key[mv_end[0].downcase]
     end_location = [end_row, end_col]
 
     [start_location, end_location]
@@ -439,12 +448,23 @@ class Board
     filter_rook(location, guest, poss_moves[0..1]) + filter_bishop(location, guest, poss_moves[2..5])
   end
 
-  def filter_king(_location, guest, poss_moves)
+  def filter_king(location, guest, poss_moves)
     moves = []
 
     poss_moves.each do |move|
       moves.push(move) if @display[move[0]][move[1]].guest == ' ' || @display[move[0]][move[1]].guest.color != guest.color
     end
+
+    # castling
+
+    if location == [7, 3] && guest.color == 'white'
+      moves.push([7, 1]) if @display[7][1].guest == ' ' && @display[7][2].guest == ' ' && @display[7][0].guest.id == 'rook'
+    end
+
+    if location == [0, 3] && guest.color == 'black'
+      moves.push([0, 1]) if @display[0][1].guest == ' ' && @display[0][2].guest == ' ' && @display[0][0].guest.id == 'rook'
+    end
+
     moves
   end
 end
